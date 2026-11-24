@@ -1,4 +1,4 @@
-# Builds the photo list (files.json) and publishes the gallery to GitHub Pages.
+# Builds the file list (files.json) and publishes the gallery to GitHub Pages.
 # Runs automatically every time you upload or change files on the main branch.
 # Save this file in your repository as:  .github/workflows/gallery.yml
 
@@ -27,12 +27,15 @@ jobs:
         with:
           fetch-depth: 0   # full history, used to work out when each photo was added
 
-      - name: List all photos into files.json
+      - name: List all photos and documents into files.json
         run: |
           python3 - <<'PY'
           import json, os, subprocess, time
 
-          EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif', '.bmp', '.svg'}
+          EXTENSIONS = {
+              '.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif', '.bmp', '.svg',  # images
+              '.pdf', '.doc', '.docx',                                           # documents
+          }
 
           photos = []
           for root, dirs, names in os.walk('.'):
@@ -59,7 +62,7 @@ jobs:
           with open('files.json', 'w', encoding='utf-8') as f:
               json.dump({'generated': int(time.time()), 'count': len(files), 'files': files},
                         f, ensure_ascii=False, separators=(',', ':'))
-          print(f'Listed {len(files)} photos')
+          print(f'Listed {len(files)} files')
           PY
 
       - name: Set up Pages
