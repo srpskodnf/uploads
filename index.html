@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Photos</title>
+<meta name="description" content="A searchable archive of photos and documents. Every file has a direct link you can embed or share.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
@@ -110,6 +111,11 @@
   .folder { font-size: .75rem; color: var(--muted); overflow-wrap: anywhere; }
   mark { background: var(--mark); color: inherit; border-radius: 2px; }
 
+  .alllist { border-top: 1px solid var(--line); padding: 16px 0 48px; font-size: .9rem; }
+  .alllist summary { cursor: pointer; color: var(--muted); }
+  .alllist ul { columns: 18rem; column-gap: 24px; padding-left: 1.2em; margin: 12px 0 0; }
+  .alllist li { break-inside: avoid; overflow-wrap: anywhere; margin-bottom: 2px; }
+  .alllist a { color: var(--accent); }
   .empty { padding: 64px 0; text-align: center; color: var(--muted); max-width: 60ch; margin: 0 auto; }
   .empty strong { display: block; color: var(--ink); font-size: 1.1rem; margin-bottom: 6px; }
   .empty button { margin-top: 14px; }
@@ -189,6 +195,12 @@
 <main class="wrap">
   <div id="msg" class="empty" hidden></div>
   <div id="grid" class="grid"></div>
+  <details class="alllist">
+    <summary>List of all files as text</summary>
+    <ul>
+<!-- FILE_LIST -->
+    </ul>
+  </details>
 </main>
 
 <dialog id="viewer" aria-labelledby="v-title">
@@ -207,7 +219,7 @@
       <div class="code"><label for="c-forum">Forum code</label><input id="c-forum" readonly><button type="button" class="btn" data-copy="c-forum">Copy</button></div>
       <div class="code"><label for="c-html">HTML code</label><input id="c-html" readonly><button type="button" class="btn" data-copy="c-html">Copy</button></div>
     </div>
-    <p class="v-open"><a id="v-open" target="_blank" rel="noopener">Open full image in a new tab</a></p>
+    <p class="v-open"><a id="v-open" target="_blank" rel="noopener">Open full image in a new tab</a><span id="v-page-wrap"> or see the <a id="v-page">page for this file</a></span></p>
   </div>
 </dialog>
 
@@ -399,6 +411,7 @@
     }
     const open = $('#v-open');
     open.href = u;
+    if (f.u) { $('#v-page').href = f.u; $('#v-page-wrap').hidden = false; } else { $('#v-page-wrap').hidden = true; }
     open.textContent = f.k === 'image' ? 'Open full image in a new tab'
       : f.k === 'pdf' ? 'Open PDF in a new tab'
       : 'Download file';
@@ -451,7 +464,7 @@
     .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then((data) => {
       all = (data.files || []).map((f) => ({
-        p: f.p, s: f.s || 0, t: f.t || 0,
+        p: f.p, s: f.s || 0, t: f.t || 0, u: f.u || '',
         n: baseName(f.p), d: dirName(f.p), l: f.p.toLowerCase(),
         x: extOf(f.p), k: kindOf(extOf(f.p))
       }));
